@@ -1,9 +1,9 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Brendenbets</title>
 
 <style>
@@ -109,6 +109,53 @@ from{transform:scale(.2);opacity:1}
 to{transform:scale(2);opacity:0}
 }
 
+/* bullet tracer */
+
+.tracer{
+position:absolute;
+height:3px;
+background:yellow;
+transform-origin:left center;
+animation:fadeTracer .15s forwards;
+}
+
+@keyframes fadeTracer{
+to{opacity:0}
+}
+
+/* splatter */
+
+.splatter{
+position:absolute;
+font-size:30px;
+animation:splat .5s forwards;
+pointer-events:none;
+}
+
+@keyframes splat{
+0%{transform:scale(.5);opacity:1}
+100%{transform:scale(1.5);opacity:0}
+}
+
+/* recoil */
+
+@keyframes recoil{
+0%{transform:scale(1)}
+30%{transform:scale(1.25) rotate(-8deg)}
+60%{transform:scale(.95) rotate(4deg)}
+100%{transform:scale(1)}
+}
+
+/* screen shake */
+
+@keyframes shake{
+0%{transform:translateX(0)}
+25%{transform:translateX(-4px)}
+50%{transform:translateX(4px)}
+75%{transform:translateX(-2px)}
+100%{transform:translateX(0)}
+}
+
 /* button */
 
 button{
@@ -122,7 +169,6 @@ border-radius:6px;
 }
 
 </style>
-
 </head>
 
 <body>
@@ -156,9 +202,11 @@ let running=false
 const race=document.getElementById("race")
 const cross=document.getElementById("crosshair")
 
-/* gun sound */
+/* sounds */
 
 const gunSound=new Audio("https://actions.google.com/sounds/v1/impacts/gunshot.ogg")
+const hitSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg")
+const missSound=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg")
 
 /* animals */
 
@@ -190,6 +238,70 @@ cross.style.top=(y-30)+"px"
 
 })
 
+/* recoil */
+
+function recoil(){
+
+cross.style.animation="recoil .18s"
+
+setTimeout(()=>{
+cross.style.animation=""
+},180)
+
+}
+
+/* screen shake */
+
+function screenShake(){
+
+race.style.animation="shake .2s"
+
+setTimeout(()=>{
+race.style.animation=""
+},200)
+
+}
+
+/* tracer */
+
+function createTracer(x1,y1,x2,y2){
+
+const tracer=document.createElement("div")
+tracer.className="tracer"
+
+const dx=x2-x1
+const dy=y2-y1
+const length=Math.sqrt(dx*dx+dy*dy)
+const angle=Math.atan2(dy,dx)*180/Math.PI
+
+tracer.style.left=x1+"px"
+tracer.style.top=y1+"px"
+tracer.style.width=length+"px"
+tracer.style.transform="rotate("+angle+"deg)"
+
+document.body.appendChild(tracer)
+
+setTimeout(()=>tracer.remove(),150)
+
+}
+
+/* splatter */
+
+function createSplatter(x,y){
+
+const splat=document.createElement("div")
+splat.className="splatter"
+splat.textContent="💥"
+
+splat.style.left=x+"px"
+splat.style.top=y+"px"
+
+document.body.appendChild(splat)
+
+setTimeout(()=>splat.remove(),500)
+
+}
+
 /* shooting */
 
 function shoot(x,y){
@@ -197,6 +309,7 @@ function shoot(x,y){
 gunSound.currentTime=0
 gunSound.play()
 
+recoil()
 createFlash(x,y)
 
 let hit=false
@@ -207,6 +320,9 @@ const rect=target.getBoundingClientRect()
 
 if(x>rect.left && x<rect.right && y>rect.top && y<rect.bottom){
 
+createTracer(x,y,rect.left+30,rect.top+30)
+createSplatter(rect.left+30,rect.top+30)
+
 target.remove()
 targets.splice(i,1)
 
@@ -215,13 +331,25 @@ combo++
 
 updateHUD()
 
+hitSound.currentTime=0
+hitSound.play()
+
+screenShake()
+
 hit=true
 
 }
 
 })
 
-if(!hit) combo=0
+if(!hit){
+
+combo=0
+
+missSound.currentTime=0
+missSound.play()
+
+}
 
 }
 
@@ -349,3 +477,4 @@ alert("Race finished! Score: "+score)
 
 </body>
 </html>
+```
