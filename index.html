@@ -36,7 +36,7 @@ padding:6px;
 font-size:18px;
 }
 
-/* race area */
+/* game area */
 
 #race{
 position:relative;
@@ -96,11 +96,11 @@ left:25px;
 
 .flash{
 position:absolute;
-width:50px;
-height:50px;
-background:rgba(255,255,0,.7);
+width:60px;
+height:60px;
+background:rgba(255,255,0,.8);
 border-radius:50%;
-animation:flash .3s forwards;
+animation:flash .25s forwards;
 pointer-events:none;
 }
 
@@ -156,29 +156,46 @@ let running=false
 const race=document.getElementById("race")
 const cross=document.getElementById("crosshair")
 
-/* random animals */
+/* gun sound */
+
+const gunSound=new Audio("https://actions.google.com/sounds/v1/impacts/gunshot.ogg")
+
+/* animals */
 
 const animals=[
 "🐎","🐖","🐑","🐄","🐕","🐈","🐓","🐇","🦌"
 ]
 
-/* move crosshair to tap */
+/* pointer input */
 
-document.addEventListener("touchstart",e=>{
+document.addEventListener("pointerdown",e=>{
 
-const x=e.touches[0].pageX
-const y=e.touches[0].pageY
+const x=e.clientX
+const y=e.clientY
 
-cross.style.left=x-30+"px"
-cross.style.top=y-30+"px"
+cross.style.left=(x-30)+"px"
+cross.style.top=(y-30)+"px"
 
 shoot(x,y)
+
+})
+
+document.addEventListener("pointermove",e=>{
+
+const x=e.clientX
+const y=e.clientY
+
+cross.style.left=(x-30)+"px"
+cross.style.top=(y-30)+"px"
 
 })
 
 /* shooting */
 
 function shoot(x,y){
+
+gunSound.currentTime=0
+gunSound.play()
 
 createFlash(x,y)
 
@@ -215,12 +232,12 @@ function createFlash(x,y){
 const flash=document.createElement("div")
 flash.className="flash"
 
-flash.style.left=x-25+"px"
-flash.style.top=y-25+"px"
+flash.style.left=x-30+"px"
+flash.style.top=y-30+"px"
 
 document.body.appendChild(flash)
 
-setTimeout(()=>flash.remove(),300)
+setTimeout(()=>flash.remove(),250)
 
 }
 
@@ -230,8 +247,6 @@ function createTarget(){
 
 const target=document.createElement("div")
 target.className="target"
-
-/* random animal */
 
 target.textContent=animals[Math.floor(Math.random()*animals.length)]
 
