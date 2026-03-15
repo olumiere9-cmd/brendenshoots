@@ -1,231 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Brendenbets</title>
 
 <style>
-
-body{
-margin:0;
-background:#1b5e20;
-font-family:Arial;
-color:white;
-overflow:hidden;
-touch-action:none;
-}
-
-/* header */
-
-header{
-background:#111;
-padding:10px;
-text-align:center;
-font-size:22px;
-font-weight:bold;
-}
+body{margin:0;background:#1b5e20;font-family:Arial;color:white;overflow:hidden;touch-action:none;}
+header{background:#111;padding:10px;text-align:center;font-size:22px;font-weight:bold;}
 
 /* scrolling banner */
-
-#banner{
-width:100%;
-background:#000;
-overflow:hidden;
-white-space:nowrap;
-border-bottom:3px solid gold;
-position:relative;
-height:50px;
-}
-
-#banner span{
-display:inline-block;
-padding-left:100%;
-font-size:26px;
-font-weight:bold;
-color:gold;
-letter-spacing:3px;
-font-family:"Trebuchet MS", Impact, sans-serif;
-animation:scrollBanner 10s linear infinite;
-text-shadow:
-0 0 5px gold,
-0 0 10px orange,
-0 0 20px gold;
-}
-
-#banner .light{
-position:absolute;
-width:10px;
-height:10px;
-border-radius:50%;
-background:gold;
-animation:flashLight 1s linear infinite;
-}
-
-@keyframes scrollBanner{
-from{transform:translateX(0)}
-to{transform:translateX(-100%)}
-}
-
-@keyframes flashLight{
-0%,50%,100%{opacity:0.3}
-25%,75%{opacity:1; transform:scale(1.5);}
-}
+#banner{width:100%;background:#000;overflow:hidden;white-space:nowrap;border-bottom:3px solid gold;position:relative;height:50px;}
+#banner span{display:inline-block;padding-left:100%;font-size:26px;font-weight:bold;color:gold;letter-spacing:3px;font-family:"Trebuchet MS", Impact, sans-serif;animation:scrollBanner 10s linear infinite;text-shadow:0 0 5px gold,0 0 10px orange,0 0 20px gold;}
+#banner .light{position:absolute;width:10px;height:10px;border-radius:50%;background:gold;animation:flashLight 1s linear infinite;}
+@keyframes scrollBanner{from{transform:translateX(0)} to{transform:translateX(-100%)}}
+@keyframes flashLight{0%,50%,100%{opacity:0.3}25%,75%{opacity:1; transform:scale(1.5);}}
 
 /* hud */
-
-#hud{
-display:flex;
-justify-content:space-around;
-padding:6px;
-font-size:18px;
-}
+#hud{display:flex;justify-content:space-around;padding:6px;font-size:18px;}
 
 /* game area */
-
-#race{
-position:relative;
-width:100vw;
-height:65vh;
-background:linear-gradient(#2e7d32,#1b5e20);
-overflow:hidden;
-border-top:4px solid #4e342e;
-border-bottom:4px solid #4e342e;
-}
+#race{position:relative;width:100vw;height:65vh;background:linear-gradient(#2e7d32,#1b5e20);overflow:hidden;border-top:4px solid #4e342e;border-bottom:4px solid #4e342e;}
 
 /* targets */
-
-.target{
-position:absolute;
-font-size:65px;
-width:65px;
-height:65px;
-display:flex;
-align-items:center;
-justify-content:center;
-animation:bounce .35s infinite alternate;
-}
-
-/* golden animals */
-
-.gold{
-filter:drop-shadow(0 0 12px gold);
-animation:goldPulse .6s infinite alternate;
-}
-
-/* rainbow ultra-rare animals */
-
-.rainbow{
-background:linear-gradient(45deg, red, orange, yellow, green, blue, violet);
--webkit-background-clip:text;
-color:transparent;
-filter:drop-shadow(0 0 12px cyan);
-animation:rainbowPulse .6s infinite alternate;
-font-size:75px;
-}
-
-@keyframes rainbowPulse{
-from{transform:scale(1)}
-to{transform:scale(1.2)}
-}
-
-@keyframes goldPulse{
-from{transform:scale(1)}
-to{transform:scale(1.15)}
-}
-
-@keyframes bounce{
-from{transform:translateY(0)}
-to{transform:translateY(-6px)}
-}
+.target{position:absolute;font-size:65px;width:65px;height:65px;display:flex;align-items:center;justify-content:center;animation:bounce .35s infinite alternate;}
+.gold{filter:drop-shadow(0 0 12px gold);animation:goldPulse .6s infinite alternate;}
+.rainbow{background:linear-gradient(45deg, red, orange, yellow, green, blue, violet);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 0 12px cyan);animation:rainbowPulse .6s infinite alternate;font-size:75px;}
+@keyframes rainbowPulse{from{transform:scale(1)}to{transform:scale(1.2)}}
+@keyframes goldPulse{from{transform:scale(1)}to{transform:scale(1.15)}}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-6px)}}
 
 /* crosshair */
-
-#crosshair{
-position:absolute;
-width:60px;
-height:60px;
-pointer-events:none;
-}
-
-.cross{
-position:absolute;
-background:red;
-}
-
+#crosshair{position:absolute;width:60px;height:60px;pointer-events:none;}
+.cross{position:absolute;background:red;}
 .h{width:60px;height:3px;top:28px;}
 .v{height:60px;width:3px;left:28px;}
-
-.center{
-width:10px;
-height:10px;
-border-radius:50%;
-background:red;
-top:25px;
-left:25px;
-}
+.center{width:10px;height:10px;border-radius:50%;background:red;top:25px;left:25px;}
 
 /* flash */
-
-.flash{
-position:absolute;
-width:60px;
-height:60px;
-background:rgba(255,255,0,.8);
-border-radius:50%;
-animation:flash .25s forwards;
-pointer-events:none;
-}
-
-@keyframes flash{
-from{transform:scale(.2);opacity:1}
-to{transform:scale(2);opacity:0}
-}
+.flash{position:absolute;width:60px;height:60px;background:rgba(255,255,0,.8);border-radius:50%;animation:flash .25s forwards;pointer-events:none;}
+@keyframes flash{from{transform:scale(.2);opacity:1}to{transform:scale(2);opacity:0}}
 
 /* tracer */
-
-.tracer{
-position:absolute;
-height:3px;
-background:yellow;
-transform-origin:left center;
-animation:fadeTracer .15s forwards;
-}
-
-@keyframes fadeTracer{
-to{opacity:0}
-}
+.tracer{position:absolute;height:3px;background:yellow;transform-origin:left center;animation:fadeTracer .15s forwards;}
+@keyframes fadeTracer{to{opacity:0}}
 
 /* splatter */
-
-.splatter{
-position:absolute;
-font-size:30px;
-animation:splat .5s forwards;
-pointer-events:none;
-}
-
-@keyframes splat{
-0%{transform:scale(.5);opacity:1}
-100%{transform:scale(1.5);opacity:0}
-}
-
-/* recoil */
-
-@keyframes recoil{
-0%{transform:scale(1)}
-30%{transform:scale(1.25) rotate(-8deg)}
-60%{transform:scale(.95) rotate(4deg)}
-100%{transform:scale(1)}
-}
-
-/* screen shake */
-
-@keyframes shake{
-0%{transform:translateX(0)}
-25%{transform:translateX(-4px)}
-50%{transform:translateX(4px)}
-75%{transform:translateX(-2px)}
-100%{transform:translateX(0)}
+.spl
 ```
