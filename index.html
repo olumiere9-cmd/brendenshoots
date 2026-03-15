@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -28,6 +27,51 @@ font-size:22px;
 font-weight:bold;
 }
 
+/* scrolling banner */
+
+#banner{
+width:100%;
+background:#000;
+overflow:hidden;
+white-space:nowrap;
+border-bottom:3px solid gold;
+position:relative;
+}
+
+#banner span{
+display:inline-block;
+padding-left:100%;
+font-size:26px;
+font-weight:bold;
+color:gold;
+letter-spacing:3px;
+font-family:"Trebuchet MS", Impact, sans-serif;
+animation:scrollBanner 10s linear infinite;
+text-shadow:
+0 0 5px gold,
+0 0 10px orange,
+0 0 20px gold;
+}
+
+#banner .light{
+position:absolute;
+width:10px;
+height:10px;
+border-radius:50%;
+background:gold;
+animation:flashLight 1s linear infinite;
+}
+
+@keyframes scrollBanner{
+from{transform:translateX(0)}
+to{transform:translateX(-100%)}
+}
+
+@keyframes flashLight{
+0%,50%,100%{opacity:0.3}
+25%,75%{opacity:1; transform:scale(1.5);}
+}
+
 /* hud */
 
 #hud{
@@ -42,7 +86,7 @@ font-size:18px;
 #race{
 position:relative;
 width:100vw;
-height:70vh;
+height:65vh;
 background:linear-gradient(#2e7d32,#1b5e20);
 overflow:hidden;
 border-top:4px solid #4e342e;
@@ -67,6 +111,22 @@ animation:bounce .35s infinite alternate;
 .gold{
 filter:drop-shadow(0 0 12px gold);
 animation:goldPulse .6s infinite alternate;
+}
+
+/* rainbow ultra-rare animals */
+
+.rainbow{
+background:linear-gradient(45deg, red, orange, yellow, green, blue, violet);
+-webkit-background-clip:text;
+color:transparent;
+filter:drop-shadow(0 0 12px cyan);
+animation:rainbowPulse .6s infinite alternate;
+font-size:75px;
+}
+
+@keyframes rainbowPulse{
+from{transform:scale(1)}
+to{transform:scale(1.2)}
 }
 
 @keyframes goldPulse{
@@ -113,417 +173,5 @@ width:60px;
 height:60px;
 background:rgba(255,255,0,.8);
 border-radius:50%;
-animation:flash .25s forwards;
-pointer-events:none;
-}
-
-@keyframes flash{
-from{transform:scale(.2);opacity:1}
-to{transform:scale(2);opacity:0}
-}
-
-/* tracer */
-
-.tracer{
-position:absolute;
-height:3px;
-background:yellow;
-transform-origin:left center;
-animation:fadeTracer .15s forwards;
-}
-
-@keyframes fadeTracer{
-to{opacity:0}
-}
-
-/* splatter */
-
-.splatter{
-position:absolute;
-font-size:30px;
-animation:splat .5s forwards;
-pointer-events:none;
-}
-
-@keyframes splat{
-0%{transform:scale(.5);opacity:1}
-100%{transform:scale(1.5);opacity:0}
-}
-
-/* recoil */
-
-@keyframes recoil{
-0%{transform:scale(1)}
-30%{transform:scale(1.25) rotate(-8deg)}
-60%{transform:scale(.95) rotate(4deg)}
-100%{transform:scale(1)}
-}
-
-/* screen shake */
-
-@keyframes shake{
-0%{transform:translateX(0)}
-25%{transform:translateX(-4px)}
-50%{transform:translateX(4px)}
-75%{transform:translateX(-2px)}
-100%{transform:translateX(0)}
-}
-
-/* button */
-
-button{
-margin:10px auto;
-display:block;
-padding:10px 25px;
-font-size:16px;
-background:#ffd54f;
-border:none;
-border-radius:6px;
-}
-
-</style>
-
-</head>
-
-<body>
-
-<header>🏇 Brendenbets</header>
-
-<div id="hud">
-<div>Score: <span id="score">0</span></div>
-<div>Combo: <span id="combo">0</span></div>
-<div>Time: <span id="time">30</span></div>
-</div>
-
-<div id="race"></div>
-
-<button id="startBtn" onclick="startGame()">Start Race</button>
-
-<div id="crosshair">
-<div class="cross h"></div>
-<div class="cross v"></div>
-<div class="cross center"></div>
-</div>
-
-<script>
-
-let targets=[]
-let score=0
-let combo=0
-let time=30
-let running=false
-
-const race=document.getElementById("race")
-const cross=document.getElementById("crosshair")
-const startBtn=document.getElementById("startBtn")
-
-/* sounds */
-
-const gunSound=new Audio("https://actions.google.com/sounds/v1/impacts/gunshot.ogg")
-const hitSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg")
-const missSound=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg")
-const rareSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang.ogg")
-
-gunSound.volume=0.6
-hitSound.volume=0.7
-missSound.volume=0.7
-rareSound.volume=1
-
-/* animals */
-
-const animals=[
-"🐎","🐖","🐑","🐄","🐕","🐈","🐓","🐇","🦌"
-]
-
-/* pointer input */
-
-document.addEventListener("pointerdown",e=>{
-
-const x=e.clientX
-const y=e.clientY
-
-cross.style.left=(x-30)+"px"
-cross.style.top=(y-30)+"px"
-
-shoot(x,y)
-
-})
-
-document.addEventListener("pointermove",e=>{
-
-const x=e.clientX
-const y=e.clientY
-
-cross.style.left=(x-30)+"px"
-cross.style.top=(y-30)+"px"
-
-})
-
-/* recoil */
-
-function recoil(){
-
-cross.style.animation="recoil .18s"
-
-setTimeout(()=>{
-cross.style.animation=""
-},180)
-
-}
-
-/* screen shake */
-
-function screenShake(){
-
-race.style.animation="shake .2s"
-
-setTimeout(()=>{
-race.style.animation=""
-},200)
-
-}
-
-/* tracer */
-
-function createTracer(x1,y1,x2,y2){
-
-const tracer=document.createElement("div")
-tracer.className="tracer"
-
-const dx=x2-x1
-const dy=y2-y1
-const length=Math.sqrt(dx*dx+dy*dy)
-const angle=Math.atan2(dy,dx)*180/Math.PI
-
-tracer.style.left=x1+"px"
-tracer.style.top=y1+"px"
-tracer.style.width=length+"px"
-tracer.style.transform="rotate("+angle+"deg)"
-
-document.body.appendChild(tracer)
-
-setTimeout(()=>tracer.remove(),150)
-
-}
-
-/* splatter */
-
-function createSplatter(x,y){
-
-const splat=document.createElement("div")
-splat.className="splatter"
-splat.textContent="💥"
-
-splat.style.left=x+"px"
-splat.style.top=y+"px"
-
-document.body.appendChild(splat)
-
-setTimeout(()=>splat.remove(),500)
-
-}
-
-/* shooting */
-
-function shoot(x,y){
-
-if(!running) return
-
-gunSound.currentTime=0
-gunSound.play()
-
-recoil()
-createFlash(x,y)
-
-let hit=false
-
-targets.forEach((target,i)=>{
-
-const rect=target.getBoundingClientRect()
-
-if(x>rect.left && x<rect.right && y>rect.top && y<rect.bottom){
-
-createTracer(x,y,rect.left+30,rect.top+30)
-createSplatter(rect.left+30,rect.top+30)
-
-target.remove()
-targets.splice(i,1)
-
-if(target.rare){
-
-score+=10
-rareSound.currentTime=0
-rareSound.play()
-
-}else{
-
-score+=1+combo
-hitSound.currentTime=0
-hitSound.play()
-
-}
-
-combo++
-updateHUD()
-
-screenShake()
-
-hit=true
-
-}
-
-})
-
-if(!hit){
-
-combo=0
-
-missSound.currentTime=0
-missSound.play()
-
-}
-
-}
-
-/* flash */
-
-function createFlash(x,y){
-
-const flash=document.createElement("div")
-flash.className="flash"
-
-flash.style.left=x-30+"px"
-flash.style.top=y-30+"px"
-
-document.body.appendChild(flash)
-
-setTimeout(()=>flash.remove(),250)
-
-}
-
-/* create target */
-
-function createTarget(){
-
-const target=document.createElement("div")
-target.className="target"
-
-target.textContent=animals[Math.floor(Math.random()*animals.length)]
-
-target.rare=Math.random()<0.1
-
-if(target.rare){
-target.classList.add("gold")
-}
-
-target.x=-100
-target.y=Math.random()*(race.offsetHeight-80)
-
-target.speed=2+Math.random()*4
-
-race.appendChild(target)
-
-targets.push(target)
-
-}
-
-/* movement */
-
-function moveTargets(){
-
-if(!running) return
-
-targets.forEach(target=>{
-
-target.x+=target.speed
-
-target.style.left=target.x+"px"
-target.style.top=target.y+"px"
-
-if(target.x>window.innerWidth){
-
-target.x=-100
-target.y=Math.random()*(race.offsetHeight-80)
-
-}
-
-})
-
-requestAnimationFrame(moveTargets)
-
-}
-
-/* spawn */
-
-function spawnLoop(){
-
-if(!running) return
-
-createTarget()
-
-setTimeout(spawnLoop,900)
-
-}
-
-/* hud */
-
-function updateHUD(){
-
-document.getElementById("score").textContent=score
-document.getElementById("combo").textContent=combo
-
-}
-
-/* start */
-
-function startGame(){
-
-startBtn.style.display="none"
-
-/* unlock mobile audio */
-
-gunSound.play().then(()=>gunSound.pause()).catch(()=>{})
-hitSound.play().then(()=>hitSound.pause()).catch(()=>{})
-missSound.play().then(()=>missSound.pause()).catch(()=>{})
-rareSound.play().then(()=>rareSound.pause()).catch(()=>{})
-
-score=0
-combo=0
-time=30
-running=true
-
-targets=[]
-race.innerHTML=""
-
-updateHUD()
-
-document.getElementById("time").textContent=time
-
-spawnLoop()
-moveTargets()
-
-const timer=setInterval(()=>{
-
-time--
-document.getElementById("time").textContent=time
-
-if(time<=0){
-
-running=false
-clearInterval(timer)
-
-alert("Race finished! Score: "+score)
-
-startBtn.style.display="block"
-
-}
-
-},1000)
-
-}
-
-</script>
-
-</body>
-</html>
+animation:fla
 ```
