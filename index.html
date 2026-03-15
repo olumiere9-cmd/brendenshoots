@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -62,27 +61,26 @@ button{margin:10px auto;display:block;padding:10px 25px;font-size:16px;backgroun
 <body>
 
 <header>🏇 Brendenbets</header>
-<div id="banner"><span>✨ BRENDENS BETS ✨ &nbsp;&nbsp;&nbsp; 🏇 Welcome to the race! 🏇</span></div>
+<div id="banner"><span>✨ BRENDENS BETS ✨ &nbsp;&nbsp;&nbsp; 🏇 We all hate Nico! 🏇</span></div>
 
 <div id="hud">
-<div>Score: <span id="score">0</span></div>
-<div>Combo: <span id="combo">0</span></div>
-<div>Time: <span id="time">30</span></div>
-<div>High Score: <span id="highscore">0</span></div>
+  <div>Score: <span id="score">0</span></div>
+  <div>Combo: <span id="combo">0</span></div>
+  <div>Time: <span id="time">30</span></div>
+  <div>High Score: <span id="highscore">0</span></div>
 </div>
 
 <div id="race"></div>
 <button id="startBtn" onclick="startGame()">Start Race</button>
 
 <div id="crosshair">
-<div class="cross h"></div>
-<div class="cross v"></div>
-<div class="cross center"></div>
+  <div class="cross h"></div>
+  <div class="cross v"></div>
+  <div class="cross center"></div>
 </div>
 
 <script>
 document.addEventListener("DOMContentLoaded",()=>{
-
 let targets=[],score=0,combo=0,time=30,running=false;
 const race=document.getElementById("race"),cross=document.getElementById("crosshair"),startBtn=document.getElementById("startBtn"),highscoreEl=document.getElementById("highscore");
 
@@ -139,8 +137,7 @@ if(!hit){combo=0;missSound.currentTime=0;missSound.play();}
 function createTarget(){
 const target=document.createElement("div");target.className="target";
 target.textContent=animals[Math.floor(Math.random()*animals.length)];
-target.rare=Math.random()<0.1;
-target.ultra=Math.random()<0.02;
+target.rare=Math.random()<0.1;target.ultra=Math.random()<0.02;
 if(target.rare)target.classList.add("gold");
 if(target.ultra)target.classList.add("rainbow");
 target.x=-100;target.y=Math.random()*(race.offsetHeight-80);
@@ -172,10 +169,8 @@ if(time<=0){running=false;clearInterval(timer);alert("Race finished! Score: "+sc
 /* flashing lights around banner */
 const banner=document.getElementById("banner");
 for(let i=0;i<20;i++){const light=document.createElement("div");light.className="light";light.style.left=(i*50)+"px";light.style.top="10px";banner.appendChild(light);}
-
-}); // DOMContentLoaded
+});
 </script>
 
 </body>
 </html>
-```
