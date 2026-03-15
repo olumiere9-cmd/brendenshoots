@@ -48,9 +48,9 @@ border-top:4px solid #4e342e;
 border-bottom:4px solid #4e342e;
 }
 
-/* horse */
+/* targets */
 
-.horse{
+.target{
 position:absolute;
 font-size:65px;
 width:65px;
@@ -58,12 +58,10 @@ height:65px;
 display:flex;
 align-items:center;
 justify-content:center;
-animation:run .35s infinite alternate;
+animation:bounce .35s infinite alternate;
 }
 
-/* bounce animation */
-
-@keyframes run{
+@keyframes bounce{
 from{transform:translateY(0)}
 to{transform:translateY(-6px)}
 }
@@ -149,7 +147,7 @@ border-radius:6px;
 
 <script>
 
-let horses=[]
+let targets=[]
 let score=0
 let combo=0
 let time=30
@@ -158,9 +156,15 @@ let running=false
 const race=document.getElementById("race")
 const cross=document.getElementById("crosshair")
 
-/* crosshair movement */
+/* random animals */
 
-document.addEventListener("touchmove",e=>{
+const animals=[
+"🐎","🐖","🐑","🐄","🐕","🐈","🐓","🐇","🦌"
+]
+
+/* move crosshair to tap */
+
+document.addEventListener("touchstart",e=>{
 
 const x=e.touches[0].pageX
 const y=e.touches[0].pageY
@@ -168,27 +172,26 @@ const y=e.touches[0].pageY
 cross.style.left=x-30+"px"
 cross.style.top=y-30+"px"
 
+shoot(x,y)
+
 })
 
 /* shooting */
 
-document.addEventListener("touchstart",e=>{
-
-const x=e.touches[0].pageX
-const y=e.touches[0].pageY
+function shoot(x,y){
 
 createFlash(x,y)
 
 let hit=false
 
-horses.forEach((horse,i)=>{
+targets.forEach((target,i)=>{
 
-const rect=horse.getBoundingClientRect()
+const rect=target.getBoundingClientRect()
 
 if(x>rect.left && x<rect.right && y>rect.top && y<rect.bottom){
 
-horse.remove()
-horses.splice(i,1)
+target.remove()
+targets.splice(i,1)
 
 score+=1+combo
 combo++
@@ -203,9 +206,9 @@ hit=true
 
 if(!hit) combo=0
 
-})
+}
 
-/* flash effect */
+/* flash */
 
 function createFlash(x,y){
 
@@ -221,60 +224,63 @@ setTimeout(()=>flash.remove(),300)
 
 }
 
-/* create horse */
+/* create target */
 
-function createHorse(){
+function createTarget(){
 
-const horse=document.createElement("div")
-horse.className="horse"
-horse.textContent="🐎"
+const target=document.createElement("div")
+target.className="target"
 
-horse.x=-100
-horse.y=Math.random()*(race.offsetHeight-80)
+/* random animal */
 
-horse.speed=2+Math.random()*4
+target.textContent=animals[Math.floor(Math.random()*animals.length)]
 
-race.appendChild(horse)
+target.x=-100
+target.y=Math.random()*(race.offsetHeight-80)
 
-horses.push(horse)
+target.speed=2+Math.random()*4
+
+race.appendChild(target)
+
+targets.push(target)
 
 }
 
 /* movement */
 
-function moveHorses(){
+function moveTargets(){
 
 if(!running) return
 
-horses.forEach(horse=>{
+targets.forEach(target=>{
 
-horse.x+=horse.speed
+target.x+=target.speed
 
-horse.style.left=horse.x+"px"
-horse.style.top=horse.y+"px"
+target.style.left=target.x+"px"
+target.style.top=target.y+"px"
 
-if(horse.x>window.innerWidth){
+if(target.x>window.innerWidth){
 
-horse.x=-100
-horse.y=Math.random()*(race.offsetHeight-80)
+target.x=-100
+target.y=Math.random()*(race.offsetHeight-80)
 
 }
 
 })
 
-requestAnimationFrame(moveHorses)
+requestAnimationFrame(moveTargets)
 
 }
 
-/* spawn horses */
+/* spawn */
 
 function spawnLoop(){
 
 if(!running) return
 
-createHorse()
+createTarget()
 
-setTimeout(spawnLoop,1000)
+setTimeout(spawnLoop,900)
 
 }
 
@@ -296,7 +302,7 @@ combo=0
 time=30
 running=true
 
-horses=[]
+targets=[]
 race.innerHTML=""
 
 updateHUD()
@@ -304,7 +310,7 @@ updateHUD()
 document.getElementById("time").textContent=time
 
 spawnLoop()
-moveHorses()
+moveTargets()
 
 const timer=setInterval(()=>{
 
