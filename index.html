@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<html>
+<head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Brendenbets</title>
@@ -33,6 +36,7 @@ overflow:hidden;
 white-space:nowrap;
 border-bottom:3px solid gold;
 position:relative;
+height:50px;
 }
 
 #banner span{
@@ -170,5 +174,58 @@ width:60px;
 height:60px;
 background:rgba(255,255,0,.8);
 border-radius:50%;
-animation:fla
+animation:flash .25s forwards;
+pointer-events:none;
+}
+
+@keyframes flash{
+from{transform:scale(.2);opacity:1}
+to{transform:scale(2);opacity:0}
+}
+
+/* tracer */
+
+.tracer{
+position:absolute;
+height:3px;
+background:yellow;
+transform-origin:left center;
+animation:fadeTracer .15s forwards;
+}
+
+@keyframes fadeTracer{
+to{opacity:0}
+}
+
+/* splatter */
+
+.splatter{
+position:absolute;
+font-size:30px;
+animation:splat .5s forwards;
+pointer-events:none;
+}
+
+@keyframes splat{
+0%{transform:scale(.5);opacity:1}
+100%{transform:scale(1.5);opacity:0}
+}
+
+/* recoil */
+
+@keyframes recoil{
+0%{transform:scale(1)}
+30%{transform:scale(1.25) rotate(-8deg)}
+60%{transform:scale(.95) rotate(4deg)}
+100%{transform:scale(1)}
+}
+
+/* screen shake */
+
+@keyframes shake{
+0%{transform:translateX(0)}
+25%{transform:translateX(-4px)}
+50%{transform:translateX(4px)}
+75%{transform:translateX(-2px)}
+100%{transform:translateX(0)}
 ```
