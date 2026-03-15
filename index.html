@@ -7,54 +7,32 @@
 <style>
 body{margin:0;background:#1b5e20;font-family:Arial;color:white;overflow:hidden;touch-action:none;}
 header{background:#111;padding:10px;text-align:center;font-size:22px;font-weight:bold;}
-
-/* scrolling banner */
 #banner{width:100%;background:#000;overflow:hidden;white-space:nowrap;border-bottom:3px solid gold;position:relative;height:50px;}
 #banner span{display:inline-block;padding-left:100%;font-size:26px;font-weight:bold;color:gold;letter-spacing:3px;font-family:"Trebuchet MS", Impact, sans-serif;animation:scrollBanner 10s linear infinite;text-shadow:0 0 5px gold,0 0 10px orange,0 0 20px gold;}
 #banner .light{position:absolute;width:10px;height:10px;border-radius:50%;background:gold;animation:flashLight 1s linear infinite;}
 @keyframes scrollBanner{from{transform:translateX(0)} to{transform:translateX(-100%)}}
 @keyframes flashLight{0%,50%,100%{opacity:0.3}25%,75%{opacity:1; transform:scale(1.5);}}
-
-/* hud */
 #hud{display:flex;justify-content:space-around;padding:6px;font-size:18px;}
-
-/* game area */
 #race{position:relative;width:100vw;height:65vh;background:linear-gradient(#2e7d32,#1b5e20);overflow:hidden;border-top:4px solid #4e342e;border-bottom:4px solid #4e342e;}
-
-/* targets */
 .target{position:absolute;font-size:65px;width:65px;height:65px;display:flex;align-items:center;justify-content:center;animation:bounce .35s infinite alternate;}
 .gold{filter:drop-shadow(0 0 12px gold);animation:goldPulse .6s infinite alternate;}
 .rainbow{background:linear-gradient(45deg, red, orange, yellow, green, blue, violet);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 0 12px cyan);animation:rainbowPulse .6s infinite alternate;font-size:75px;}
 @keyframes rainbowPulse{from{transform:scale(1)}to{transform:scale(1.2)}}
 @keyframes goldPulse{from{transform:scale(1)}to{transform:scale(1.15)}}
 @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-6px)}}
-
-/* crosshair */
 #crosshair{position:absolute;width:60px;height:60px;pointer-events:none;}
 .cross{position:absolute;background:red;}
 .h{width:60px;height:3px;top:28px;}
 .v{height:60px;width:3px;left:28px;}
 .center{width:10px;height:10px;border-radius:50%;background:red;top:25px;left:25px;}
-
-/* flash */
 .flash{position:absolute;width:60px;height:60px;background:rgba(255,255,0,.8);border-radius:50%;animation:flash .25s forwards;pointer-events:none;}
 @keyframes flash{from{transform:scale(.2);opacity:1}to{transform:scale(2);opacity:0}}
-
-/* tracer */
 .tracer{position:absolute;height:3px;background:yellow;transform-origin:left center;animation:fadeTracer .15s forwards;}
 @keyframes fadeTracer{to{opacity:0}}
-
-/* splatter */
 .splatter{position:absolute;font-size:30px;animation:splat .5s forwards;pointer-events:none;}
 @keyframes splat{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.5);opacity:0}}
-
-/* recoil */
 @keyframes recoil{0%{transform:scale(1)}30%{transform:scale(1.25) rotate(-8deg)}60%{transform:scale(.95) rotate(4deg)}100%{transform:scale(1)}}
-
-/* screen shake */
 @keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
-
-/* button */
 button{margin:10px auto;display:block;padding:10px 25px;font-size:16px;background:#ffd54f;border:none;border-radius:6px;}
 </style>
 </head>
@@ -71,7 +49,7 @@ button{margin:10px auto;display:block;padding:10px 25px;font-size:16px;backgroun
 </div>
 
 <div id="race"></div>
-<button id="startBtn" onclick="startGame()">Start Race</button>
+<button id="startBtn">Start Race</button>
 
 <div id="crosshair">
   <div class="cross h"></div>
@@ -80,11 +58,14 @@ button{margin:10px auto;display:block;padding:10px 25px;font-size:16px;backgroun
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded",()=>{
 let targets=[],score=0,combo=0,time=30,running=false;
-const race=document.getElementById("race"),cross=document.getElementById("crosshair"),startBtn=document.getElementById("startBtn"),highscoreEl=document.getElementById("highscore");
+const race=document.getElementById("race");
+const cross=document.getElementById("crosshair");
+const startBtn=document.getElementById("startBtn");
+const highscoreEl=document.getElementById("highscore");
+const animals=["🐎","🐖","🐑","🐄","🐕","🐈","🐓","🐇","🦌"];
 
-/* sounds */
+/* sounds (do NOT play yet) */
 const gunSound=new Audio("https://actions.google.com/sounds/v1/impacts/gunshot.ogg");
 const hitSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
 const missSound=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
@@ -92,26 +73,16 @@ const rareSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang.og
 const ultraSound=new Audio("https://actions.google.com/sounds/v1/cartoon/metal_hit.ogg");
 gunSound.volume=0.6;hitSound.volume=0.7;missSound.volume=0.7;rareSound.volume=1;ultraSound.volume=1;
 
-/* animals */
-const animals=["🐎","🐖","🐑","🐄","🐕","🐈","🐓","🐇","🦌"];
+/* input */
+document.addEventListener("pointerdown",e=>{const x=e.clientX,y=e.clientY;cross.style.left=(x-30)+"px";cross.style.top=(y-30)+"px";shoot(x,y);});
+document.addEventListener("pointermove",e=>{const x=e.clientX,y=e.clientY;cross.style.left=(x-30)+"px";cross.style.top=(y-30)+"px";});
 
-/* pointer input */
-document.addEventListener("pointerdown",e=>{
-const x=e.clientX,y=e.clientY;
-cross.style.left=(x-30)+"px";cross.style.top=(y-30)+"px";
-shoot(x,y);
-});
-document.addEventListener("pointermove",e=>{
-const x=e.clientX,y=e.clientY;
-cross.style.left=(x-30)+"px";cross.style.top=(y-30)+"px";
-});
-
-/* recoil/screen shake/tracer/splatter */
+/* effects */
 function recoil(){cross.style.animation="recoil .18s";setTimeout(()=>{cross.style.animation=""},180);}
 function screenShake(){race.style.animation="shake .2s";setTimeout(()=>{race.style.animation=""},200);}
-function createTracer(x1,y1,x2,y2){const tracer=document.createElement("div");tracer.className="tracer";const dx=x2-x1,dy=y2-y1,length=Math.sqrt(dx*dx+dy*dy),angle=Math.atan2(dy,dx)*180/Math.PI;tracer.style.left=x1+"px";tracer.style.top=y1+"px";tracer.style.width=length+"px";tracer.style.transform="rotate("+angle+"deg)";document.body.appendChild(tracer);setTimeout(()=>tracer.remove(),150);}
-function createSplatter(x,y){const splat=document.createElement("div");splat.className="splatter";splat.textContent="💥";splat.style.left=x+"px";splat.style.top=y+"px";document.body.appendChild(splat);setTimeout(()=>splat.remove(),500);}
-function createFlash(x,y){const flash=document.createElement("div");flash.className="flash";flash.style.left=x-30+"px";flash.style.top=y-30+"px";document.body.appendChild(flash);setTimeout(()=>flash.remove(),250);}
+function createFlash(x,y){const f=document.createElement("div");f.className="flash";f.style.left=x-30+"px";f.style.top=y-30+"px";document.body.appendChild(f);setTimeout(()=>f.remove(),250);}
+function createTracer(x1,y1,x2,y2){const t=document.createElement("div");t.className="tracer";const dx=x2-x1,dy=y2-y1,length=Math.sqrt(dx*dx+dy*dy),angle=Math.atan2(dy,dx)*180/Math.PI;t.style.left=x1+"px";t.style.top=y1+"px";t.style.width=length+"px";t.style.transform="rotate("+angle+"deg)";document.body.appendChild(t);setTimeout(()=>t.remove(),150);}
+function createSplatter(x,y){const s=document.createElement("div");s.className="splatter";s.textContent="💥";s.style.left=x+"px";s.style.top=y+"px";document.body.appendChild(s);setTimeout(()=>s.remove(),500);}
 
 /* shooting */
 function shoot(x,y){
@@ -133,7 +104,7 @@ combo++;updateHUD();screenShake();hit=true;}
 if(!hit){combo=0;missSound.currentTime=0;missSound.play();}
 }
 
-/* create target */
+/* target creation and movement */
 function createTarget(){
 const target=document.createElement("div");target.className="target";
 target.textContent=animals[Math.floor(Math.random()*animals.length)];
@@ -144,32 +115,32 @@ target.x=-100;target.y=Math.random()*(race.offsetHeight-80);
 target.speed=2+Math.random()*4;
 race.appendChild(target);targets.push(target);
 }
-
-/* movement/spawn/HUD */
-function moveTargets(){if(!running)return;targets.forEach(target=>{target.x+=target.speed;target.style.left=target.x+"px";target.style.top=target.y+"px";if(target.x>window.innerWidth){target.x=-100;target.y=Math.random()*(race.offsetHeight-80);}});requestAnimationFrame(moveTargets);}
+function moveTargets(){if(!running)return;targets.forEach(t=>{t.x+=t.speed;t.style.left=t.x+"px";t.style.top=t.y+"px";if(t.x>window.innerWidth){t.x=-100;t.y=Math.random()*(race.offsetHeight-80);}});requestAnimationFrame(moveTargets);}
 function spawnLoop(){if(!running)return;createTarget();setTimeout(spawnLoop,900);}
-function updateHUD(){document.getElementById("score").textContent=score;document.getElementById("combo").textContent=combo;let high=localStorage.getItem("highscore")||0;if(score>high){localStorage.setItem("highscore",score);high=score;}highscoreEl.textContent=high;}
+function updateHUD(){document.getElementById("score").textContent=score;document.getElementById("combo").textContent=combo;let h=localStorage.getItem("highscore")||0;if(score>h){localStorage.setItem("highscore",score);h=score;}highscoreEl.textContent=h;}
 
-/* start */
-function startGame(){
+/* start game - unlocks sounds for mobile */
+startBtn.addEventListener("click",()=>{
 startBtn.style.display="none";
-gunSound.play().then(()=>gunSound.pause()).catch(()=>{});
-hitSound.play().then(()=>hitSound.pause()).catch(()=>{});
-missSound.play().then(()=>missSound.pause()).catch(()=>{});
-rareSound.play().then(()=>rareSound.pause()).catch(()=>{});
-ultraSound.play().then(()=>ultraSound.pause()).catch(()=>{});
-score=0;combo=0;time=30;running=true;targets=[];race.innerHTML="";updateHUD();document.getElementById("time").textContent=time;
+gunSound.play().then(()=>gunSound.pause());
+hitSound.play().then(()=>hitSound.pause());
+missSound.play().then(()=>missSound.pause());
+rareSound.play().then(()=>rareSound.pause());
+ultraSound.play().then(()=>ultraSound.pause());
+
+score=0;combo=0;time=30;running=true;targets=[];race.innerHTML="";updateHUD();
+document.getElementById("time").textContent=time;
 spawnLoop();moveTargets();
+
 const timer=setInterval(()=>{
 time--;document.getElementById("time").textContent=time;
 if(time<=0){running=false;clearInterval(timer);alert("Race finished! Score: "+score);startBtn.style.display="block";updateHUD();}
 },1000);
-}
-
-/* flashing lights around banner */
-const banner=document.getElementById("banner");
-for(let i=0;i<20;i++){const light=document.createElement("div");light.className="light";light.style.left=(i*50)+"px";light.style.top="10px";banner.appendChild(light);}
 });
+
+/* banner lights */
+const banner=document.getElementById("banner");
+for(let i=0;i<20;i++){const l=document.createElement("div");l.className="light";l.style.left=(i*50)+"px";l.style.top="10px";banner.appendChild(l);}
 </script>
 
 </body>
