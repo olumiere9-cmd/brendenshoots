@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html>
 <head>
@@ -45,5 +46,136 @@ header{background:#111;padding:10px;text-align:center;font-size:22px;font-weight
 @keyframes fadeTracer{to{opacity:0}}
 
 /* splatter */
-.spl
+.splatter{position:absolute;font-size:30px;animation:splat .5s forwards;pointer-events:none;}
+@keyframes splat{0%{transform:scale(.5);opacity:1}100%{transform:scale(1.5);opacity:0}}
+
+/* recoil */
+@keyframes recoil{0%{transform:scale(1)}30%{transform:scale(1.25) rotate(-8deg)}60%{transform:scale(.95) rotate(4deg)}100%{transform:scale(1)}}
+
+/* screen shake */
+@keyframes shake{0%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}100%{transform:translateX(0)}}
+
+/* button */
+button{margin:10px auto;display:block;padding:10px 25px;font-size:16px;background:#ffd54f;border:none;border-radius:6px;}
+</style>
+</head>
+<body>
+
+<header>🏇 Brendenbets</header>
+<div id="banner"><span>✨ BRENDENS BETS ✨ &nbsp;&nbsp;&nbsp; 🏇 Welcome to the race! 🏇</span></div>
+
+<div id="hud">
+<div>Score: <span id="score">0</span></div>
+<div>Combo: <span id="combo">0</span></div>
+<div>Time: <span id="time">30</span></div>
+<div>High Score: <span id="highscore">0</span></div>
+</div>
+
+<div id="race"></div>
+<button id="startBtn" onclick="startGame()">Start Race</button>
+
+<div id="crosshair">
+<div class="cross h"></div>
+<div class="cross v"></div>
+<div class="cross center"></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+
+let targets=[],score=0,combo=0,time=30,running=false;
+const race=document.getElementById("race"),cross=document.getElementById("crosshair"),startBtn=document.getElementById("startBtn"),highscoreEl=document.getElementById("highscore");
+
+/* sounds */
+const gunSound=new Audio("https://actions.google.com/sounds/v1/impacts/gunshot.ogg");
+const hitSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
+const missSound=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg");
+const rareSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang.ogg");
+const ultraSound=new Audio("https://actions.google.com/sounds/v1/cartoon/metal_hit.ogg");
+gunSound.volume=0.6;hitSound.volume=0.7;missSound.volume=0.7;rareSound.volume=1;ultraSound.volume=1;
+
+/* animals */
+const animals=["🐎","🐖","🐑","🐄","🐕","🐈","🐓","🐇","🦌"];
+
+/* pointer input */
+document.addEventListener("pointerdown",e=>{
+const x=e.clientX,y=e.clientY;
+cross.style.left=(x-30)+"px";cross.style.top=(y-30)+"px";
+shoot(x,y);
+});
+document.addEventListener("pointermove",e=>{
+const x=e.clientX,y=e.clientY;
+cross.style.left=(x-30)+"px";cross.style.top=(y-30)+"px";
+});
+
+/* recoil/screen shake/tracer/splatter */
+function recoil(){cross.style.animation="recoil .18s";setTimeout(()=>{cross.style.animation=""},180);}
+function screenShake(){race.style.animation="shake .2s";setTimeout(()=>{race.style.animation=""},200);}
+function createTracer(x1,y1,x2,y2){const tracer=document.createElement("div");tracer.className="tracer";const dx=x2-x1,dy=y2-y1,length=Math.sqrt(dx*dx+dy*dy),angle=Math.atan2(dy,dx)*180/Math.PI;tracer.style.left=x1+"px";tracer.style.top=y1+"px";tracer.style.width=length+"px";tracer.style.transform="rotate("+angle+"deg)";document.body.appendChild(tracer);setTimeout(()=>tracer.remove(),150);}
+function createSplatter(x,y){const splat=document.createElement("div");splat.className="splatter";splat.textContent="💥";splat.style.left=x+"px";splat.style.top=y+"px";document.body.appendChild(splat);setTimeout(()=>splat.remove(),500);}
+function createFlash(x,y){const flash=document.createElement("div");flash.className="flash";flash.style.left=x-30+"px";flash.style.top=y-30+"px";document.body.appendChild(flash);setTimeout(()=>flash.remove(),250);}
+
+/* shooting */
+function shoot(x,y){
+if(!running)return;
+gunSound.currentTime=0;gunSound.play();
+recoil();createFlash(x,y);
+let hit=false;
+targets.forEach((target,i)=>{
+const rect=target.getBoundingClientRect();
+if(x>rect.left&&x<rect.right&&y>rect.top&&y<rect.bottom){
+createTracer(x,y,rect.left+30,rect.top+30);
+createSplatter(rect.left+30,rect.top+30);
+target.remove();targets.splice(i,1);
+if(target.ultra){score+=100;ultraSound.currentTime=0;ultraSound.play();}
+else if(target.rare){score+=10;rareSound.currentTime=0;rareSound.play();}
+else{score+=1+combo;hitSound.currentTime=0;hitSound.play();}
+combo++;updateHUD();screenShake();hit=true;}
+});
+if(!hit){combo=0;missSound.currentTime=0;missSound.play();}
+}
+
+/* create target */
+function createTarget(){
+const target=document.createElement("div");target.className="target";
+target.textContent=animals[Math.floor(Math.random()*animals.length)];
+target.rare=Math.random()<0.1;
+target.ultra=Math.random()<0.02;
+if(target.rare)target.classList.add("gold");
+if(target.ultra)target.classList.add("rainbow");
+target.x=-100;target.y=Math.random()*(race.offsetHeight-80);
+target.speed=2+Math.random()*4;
+race.appendChild(target);targets.push(target);
+}
+
+/* movement/spawn/HUD */
+function moveTargets(){if(!running)return;targets.forEach(target=>{target.x+=target.speed;target.style.left=target.x+"px";target.style.top=target.y+"px";if(target.x>window.innerWidth){target.x=-100;target.y=Math.random()*(race.offsetHeight-80);}});requestAnimationFrame(moveTargets);}
+function spawnLoop(){if(!running)return;createTarget();setTimeout(spawnLoop,900);}
+function updateHUD(){document.getElementById("score").textContent=score;document.getElementById("combo").textContent=combo;let high=localStorage.getItem("highscore")||0;if(score>high){localStorage.setItem("highscore",score);high=score;}highscoreEl.textContent=high;}
+
+/* start */
+function startGame(){
+startBtn.style.display="none";
+gunSound.play().then(()=>gunSound.pause()).catch(()=>{});
+hitSound.play().then(()=>hitSound.pause()).catch(()=>{});
+missSound.play().then(()=>missSound.pause()).catch(()=>{});
+rareSound.play().then(()=>rareSound.pause()).catch(()=>{});
+ultraSound.play().then(()=>ultraSound.pause()).catch(()=>{});
+score=0;combo=0;time=30;running=true;targets=[];race.innerHTML="";updateHUD();document.getElementById("time").textContent=time;
+spawnLoop();moveTargets();
+const timer=setInterval(()=>{
+time--;document.getElementById("time").textContent=time;
+if(time<=0){running=false;clearInterval(timer);alert("Race finished! Score: "+score);startBtn.style.display="block";updateHUD();}
+},1000);
+}
+
+/* flashing lights around banner */
+const banner=document.getElementById("banner");
+for(let i=0;i<20;i++){const light=document.createElement("div");light.className="light";light.style.left=(i*50)+"px";light.style.top="10px";banner.appendChild(light);}
+
+}); // DOMContentLoaded
+</script>
+
+</body>
+</html>
 ```
