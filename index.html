@@ -1,177 +1,71 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Brendenbets Racing Game</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Brendenbets</title>
 
 <style>
 
 body{
 margin:0;
+background:#1b5e20;
 font-family:Arial;
-background:#0b3d0b;
 color:white;
-text-align:center;
 overflow:hidden;
-cursor:none;
+touch-action:none;
 }
 
 /* header */
 
 header{
 background:#111;
-padding:15px;
-font-size:36px;
+padding:10px;
+text-align:center;
+font-size:22px;
 font-weight:bold;
-letter-spacing:2px;
-box-shadow:0 4px 10px rgba(0,0,0,0.6);
 }
 
 /* hud */
 
 #hud{
 display:flex;
-justify-content:center;
-gap:60px;
-font-size:22px;
-margin:10px;
+justify-content:space-around;
+padding:6px;
+font-size:18px;
 }
 
-/* racecourse */
+/* race area */
 
-#racecourse{
-width:1100px;
-height:550px;
-margin:auto;
+#race{
 position:relative;
+width:100vw;
+height:70vh;
 background:linear-gradient(#2e7d32,#1b5e20);
-border:8px solid #5d4037;
-border-radius:20px;
 overflow:hidden;
-box-shadow:0 0 40px rgba(0,0,0,0.8);
+border-top:4px solid #4e342e;
+border-bottom:4px solid #4e342e;
 }
 
-/* crowd */
-
-.crowd{
-position:absolute;
-top:0;
-width:100%;
-height:70px;
-background:repeating-linear-gradient(
-90deg,
-#444,
-#444 8px,
-#777 8px,
-#777 16px
-);
-}
-
-/* racetrack */
-
-.track{
-position:absolute;
-width:880px;
-height:380px;
-border:18px solid #d7ccc8;
-border-radius:50%;
-top:90px;
-left:110px;
-}
-
-/* horses */
+/* horse */
 
 .horse{
 position:absolute;
-width:120px;
-height:90px;
-transition:transform .1s;
-}
-
-/* body */
-
-.horse-body{
-width:80px;
-height:40px;
-background:linear-gradient(#8d6e63,#4e342e);
-border-radius:20px;
-position:absolute;
-bottom:0;
-left:25px;
-box-shadow:0 3px 4px rgba(0,0,0,.5);
-}
-
-.horse-head{
-width:25px;
-height:25px;
-background:#6d4c41;
-border-radius:50%;
-position:absolute;
-top:10px;
-left:0;
-}
-
-/* legs */
-
-.leg{
-width:6px;
-height:22px;
-background:#3e2723;
-position:absolute;
-bottom:-18px;
-animation:run .3s infinite alternate;
-}
-
-.l1{left:30px}
-.l2{left:50px;animation-delay:.1s}
-.l3{left:65px}
-.l4{left:85px;animation-delay:.1s}
-
-@keyframes run{
-from{transform:rotate(15deg)}
-to{transform:rotate(-15deg)}
-}
-
-/* jockey */
-
-.jockey{
-position:absolute;
-top:-35px;
-left:45px;
-}
-
-.jockey-head{
-width:20px;
-height:20px;
-background:#f1c27d;
-border-radius:50%;
-}
-
-.jockey-body{
-width:30px;
-height:25px;
-background:#1db954;
-position:relative;
-}
-
-.jockey-body::after{
-content:"";
-width:12px;
-height:12px;
-background:yellow;
-position:absolute;
-top:6px;
-left:9px;
-transform:rotate(45deg);
+width:110px;
+height:70px;
+background-image:url("https://i.imgur.com/Fd6V6gM.png");
+background-size:contain;
+background-repeat:no-repeat;
 }
 
 /* crosshair */
 
 #crosshair{
 position:absolute;
-width:40px;
-height:40px;
+width:60px;
+height:60px;
 pointer-events:none;
-z-index:1000;
 }
 
 .cross{
@@ -179,60 +73,49 @@ position:absolute;
 background:red;
 }
 
-.cross.h{
-width:40px;
-height:2px;
-top:19px;
-}
+.h{width:60px;height:3px;top:28px;}
+.v{height:60px;width:3px;left:28px;}
 
-.cross.v{
-height:40px;
-width:2px;
-left:19px;
-}
-
-.cross.center{
-width:6px;
-height:6px;
+.center{
+width:10px;
+height:10px;
 border-radius:50%;
 background:red;
-top:17px;
-left:17px;
+top:25px;
+left:25px;
 }
 
-/* hit flash */
+/* flash */
 
-.hit{
+.flash{
 position:absolute;
-width:40px;
-height:40px;
+width:50px;
+height:50px;
+background:rgba(255,255,0,.7);
 border-radius:50%;
-background:rgba(255,255,0,.6);
-animation:hit .4s forwards;
+animation:flash .3s forwards;
 pointer-events:none;
 }
 
-@keyframes hit{
-from{transform:scale(.3);opacity:1}
+@keyframes flash{
+from{transform:scale(.2);opacity:1}
 to{transform:scale(2);opacity:0}
 }
 
+/* button */
+
 button{
-margin-top:15px;
-padding:12px 30px;
-font-size:18px;
+margin:10px auto;
+display:block;
+padding:10px 25px;
+font-size:16px;
 background:#ffd54f;
 border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold;
-}
-
-button:hover{
-background:#ffca28;
+border-radius:6px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -241,13 +124,11 @@ background:#ffca28;
 
 <div id="hud">
 <div>Score: <span id="score">0</span></div>
+<div>Combo: <span id="combo">0</span></div>
 <div>Time: <span id="time">30</span></div>
 </div>
 
-<div id="racecourse">
-<div class="crowd"></div>
-<div class="track"></div>
-</div>
+<div id="race"></div>
 
 <button onclick="startGame()">Start Race</button>
 
@@ -260,37 +141,76 @@ background:#ffca28;
 <script>
 
 let horses=[]
-let angle=0
 let score=0
+let combo=0
 let time=30
 let running=false
 
-const racecourse=document.getElementById("racecourse")
-
-/* crosshair follow */
-
+const race=document.getElementById("race")
 const cross=document.getElementById("crosshair")
 
-document.addEventListener("mousemove",e=>{
-cross.style.left=e.pageX-20+"px"
-cross.style.top=e.pageY-20+"px"
-})
+/* crosshair movement */
 
-/* hit effect */
+document.addEventListener("touchmove",e=>{
 
-document.addEventListener("click",e=>{
+const x=e.touches[0].pageX
+const y=e.touches[0].pageY
 
-const hit=document.createElement("div")
-hit.className="hit"
-
-hit.style.left=e.pageX-20+"px"
-hit.style.top=e.pageY-20+"px"
-
-document.body.appendChild(hit)
-
-setTimeout(()=>hit.remove(),400)
+cross.style.left=x-30+"px"
+cross.style.top=y-30+"px"
 
 })
+
+/* shooting */
+
+document.addEventListener("touchstart",e=>{
+
+const x=e.touches[0].pageX
+const y=e.touches[0].pageY
+
+createFlash(x,y)
+
+let hit=false
+
+horses.forEach((horse,i)=>{
+
+const rect=horse.getBoundingClientRect()
+
+if(x>rect.left && x<rect.right && y>rect.top && y<rect.bottom){
+
+horse.remove()
+horses.splice(i,1)
+
+score+=1+combo
+combo++
+
+updateHUD()
+
+hit=true
+
+}
+
+})
+
+if(!hit) combo=0
+
+})
+
+/* flash effect */
+
+function createFlash(x,y){
+
+const flash=document.createElement("div")
+flash.className="flash"
+
+flash.style.left=x-25+"px"
+flash.style.top=y-25+"px"
+
+document.body.appendChild(flash)
+
+setTimeout(()=>flash.remove(),300)
+
+}
 
 /* create horse */
 
@@ -299,60 +219,61 @@ function createHorse(){
 const horse=document.createElement("div")
 horse.className="horse"
 
-horse.innerHTML=`
-<div class="horse-head"></div>
-<div class="horse-body"></div>
-<div class="leg l1"></div>
-<div class="leg l2"></div>
-<div class="leg l3"></div>
-<div class="leg l4"></div>
-<div class="jockey">
-<div class="jockey-head"></div>
-<div class="jockey-body"></div>
-</div>
-`
+horse.x=-120
+horse.y=Math.random()* (race.offsetHeight-80)
 
-horse.speed=0.015+Math.random()*0.02
+horse.speed=2+Math.random()*4
 
-horse.onclick=()=>{
-score++
-document.getElementById("score").textContent=score
-horse.style.transform="scale(1.2)"
-setTimeout(()=>horse.style.transform="scale(1)",100)
-}
+race.appendChild(horse)
 
-racecourse.appendChild(horse)
 horses.push(horse)
 
 }
 
-/* move horses */
+/* movement */
 
 function moveHorses(){
 
 if(!running) return
 
-angle+=0.01
+horses.forEach(horse=>{
 
-const centerX=550
-const centerY=300
+horse.x+=horse.speed
 
-const radiusX=420
-const radiusY=180
+horse.style.left=horse.x+"px"
+horse.style.top=horse.y+"px"
 
-horses.forEach((horse,i)=>{
+if(horse.x>window.innerWidth){
 
-const offset=i*1.5
+horse.x=-120
+horse.y=Math.random()*(race.offsetHeight-80)
 
-const x=centerX + radiusX*Math.cos(angle*horse.speed*60+offset) - 60
-const y=centerY + radiusY*Math.sin(angle*horse.speed*60+offset) - 40
-
-horse.style.left=x+"px"
-horse.style.top=y+"px"
+}
 
 })
 
 requestAnimationFrame(moveHorses)
+
+}
+
+/* spawn horses */
+
+function spawnLoop(){
+
+if(!running) return
+
+createHorse()
+
+setTimeout(spawnLoop,1000)
+
+}
+
+/* hud */
+
+function updateHUD(){
+
+document.getElementById("score").textContent=score
+document.getElementById("combo").textContent=combo
 
 }
 
@@ -361,20 +282,18 @@ requestAnimationFrame(moveHorses)
 function startGame(){
 
 score=0
+combo=0
 time=30
 running=true
-angle=0
-horses=[]
 
-document.getElementById("score").textContent=0
+horses=[]
+race.innerHTML=""
+
+updateHUD()
+
 document.getElementById("time").textContent=time
 
-racecourse.innerHTML='<div class="crowd"></div><div class="track"></div>'
-
-for(let i=0;i<4;i++){
-createHorse()
-}
-
+spawnLoop()
 moveHorses()
 
 const timer=setInterval(()=>{
@@ -383,9 +302,12 @@ time--
 document.getElementById("time").textContent=time
 
 if(time<=0){
+
 running=false
 clearInterval(timer)
-alert("Race finished! Your score: "+score)
+
+alert("Race finished! Score: "+score)
+
 }
 
 },1000)
