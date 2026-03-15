@@ -52,11 +52,20 @@ border-bottom:4px solid #4e342e;
 
 .horse{
 position:absolute;
-width:110px;
-height:70px;
-background-image:url("https://i.imgur.com/Fd6V6gM.png");
-background-size:contain;
-background-repeat:no-repeat;
+font-size:65px;
+width:65px;
+height:65px;
+display:flex;
+align-items:center;
+justify-content:center;
+animation:run .35s infinite alternate;
+}
+
+/* bounce animation */
+
+@keyframes run{
+from{transform:translateY(0)}
+to{transform:translateY(-6px)}
 }
 
 /* crosshair */
@@ -218,9 +227,10 @@ function createHorse(){
 
 const horse=document.createElement("div")
 horse.className="horse"
+horse.textContent="🐎"
 
-horse.x=-120
-horse.y=Math.random()* (race.offsetHeight-80)
+horse.x=-100
+horse.y=Math.random()*(race.offsetHeight-80)
 
 horse.speed=2+Math.random()*4
 
@@ -245,7 +255,7 @@ horse.style.top=horse.y+"px"
 
 if(horse.x>window.innerWidth){
 
-horse.x=-120
+horse.x=-100
 horse.y=Math.random()*(race.offsetHeight-80)
 
 }
