@@ -4,6 +4,7 @@
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Brendenbets</title>
 
 <style>
@@ -61,6 +62,18 @@ justify-content:center;
 animation:bounce .35s infinite alternate;
 }
 
+/* golden animals */
+
+.gold{
+filter:drop-shadow(0 0 12px gold);
+animation:goldPulse .6s infinite alternate;
+}
+
+@keyframes goldPulse{
+from{transform:scale(1)}
+to{transform:scale(1.15)}
+}
+
 @keyframes bounce{
 from{transform:translateY(0)}
 to{transform:translateY(-6px)}
@@ -109,7 +122,7 @@ from{transform:scale(.2);opacity:1}
 to{transform:scale(2);opacity:0}
 }
 
-/* bullet tracer */
+/* tracer */
 
 .tracer{
 position:absolute;
@@ -169,6 +182,7 @@ border-radius:6px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -183,7 +197,7 @@ border-radius:6px;
 
 <div id="race"></div>
 
-<button onclick="startGame()">Start Race</button>
+<button id="startBtn" onclick="startGame()">Start Race</button>
 
 <div id="crosshair">
 <div class="cross h"></div>
@@ -201,12 +215,19 @@ let running=false
 
 const race=document.getElementById("race")
 const cross=document.getElementById("crosshair")
+const startBtn=document.getElementById("startBtn")
 
 /* sounds */
 
 const gunSound=new Audio("https://actions.google.com/sounds/v1/impacts/gunshot.ogg")
 const hitSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg")
 const missSound=new Audio("https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg")
+const rareSound=new Audio("https://actions.google.com/sounds/v1/cartoon/clang.ogg")
+
+gunSound.volume=0.6
+hitSound.volume=0.7
+missSound.volume=0.7
+rareSound.volume=1
 
 /* animals */
 
@@ -306,6 +327,8 @@ setTimeout(()=>splat.remove(),500)
 
 function shoot(x,y){
 
+if(!running) return
+
 gunSound.currentTime=0
 gunSound.play()
 
@@ -326,13 +349,22 @@ createSplatter(rect.left+30,rect.top+30)
 target.remove()
 targets.splice(i,1)
 
+if(target.rare){
+
+score+=10
+rareSound.currentTime=0
+rareSound.play()
+
+}else{
+
 score+=1+combo
-combo++
-
-updateHUD()
-
 hitSound.currentTime=0
 hitSound.play()
+
+}
+
+combo++
+updateHUD()
 
 screenShake()
 
@@ -377,6 +409,12 @@ const target=document.createElement("div")
 target.className="target"
 
 target.textContent=animals[Math.floor(Math.random()*animals.length)]
+
+target.rare=Math.random()<0.1
+
+if(target.rare){
+target.classList.add("gold")
+}
 
 target.x=-100
 target.y=Math.random()*(race.offsetHeight-80)
@@ -440,6 +478,15 @@ document.getElementById("combo").textContent=combo
 
 function startGame(){
 
+startBtn.style.display="none"
+
+/* unlock mobile audio */
+
+gunSound.play().then(()=>gunSound.pause()).catch(()=>{})
+hitSound.play().then(()=>hitSound.pause()).catch(()=>{})
+missSound.play().then(()=>missSound.pause()).catch(()=>{})
+rareSound.play().then(()=>rareSound.pause()).catch(()=>{})
+
 score=0
 combo=0
 time=30
@@ -466,6 +513,8 @@ running=false
 clearInterval(timer)
 
 alert("Race finished! Score: "+score)
+
+startBtn.style.display="block"
 
 }
 
